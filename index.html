@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="One loss guarantees convergence, stability and minimum extra boundaries.">
+  <meta name="keywords" content="HotSpot, SDF, Signed Distance Function, Screened Poisson Equation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HotSpot: Signed Distance Function Optimization with an Asymptotically Sufficient Condition</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/hotspot.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            <span class="dnerf">HotSpot: Signed Distance Function Optimization with an Asymptotically Sufficient Condition</span>
+          </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://zeamoxwang.github.io/homepage/">Zimo Wang</a><sup>*</sup>,</span>
+            <span class="author-block">
+              <a href="https://galaxeaaa.github.io/">Cheng Wang</a><sup>*</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/taiki-yoshino-167a60266">Taiki Yoshino</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://dylantao.github.io/">Sirui Tao</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://fzy28.github.io/">Ziyang Fu</a>,
+            </span>
+            <span class="author-block">
+              <a href="https://cseweb.ucsd.edu/~tzli/">Tzu-Mao Li</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">University of California, San Diego</span>
+            <br>* denotes equal contribution
+          </div>
+
+          
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2411.14628"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- ArXiv Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2411.14628"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/Galaxeaaa/HotSpot"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body" style="padding-bottom: 0.5rem; text-align: center;">
+      <img id="teaser" src="./static/figures/teaser2.png" alt="HotSpot Teaser Image" 
+           style="width:100%; height:auto;" 
+           class="teaser-image">
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf"><strong>HotSpot</strong></span> obtains accurate Signed Distance Function (SDF) for complex shapes.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* 默认情况下使用 teaser2.png */
+  .teaser-image {
+    content: url("./static/figures/teaser2.png");
+  }
+
+  /* 当屏幕宽度大于 768px（例如电脑端横屏）时，使用 teaser.png */
+  @media (min-width: 768px) {
+    .teaser-image {
+      content: url("./static/figures/teaser.png");
+    }
+  }
+</style>
+
+<section class="hero is-light">
+  <div class="hero-body">
+    <div class="container" style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5vw;">
+      
+      <!-- Left: The Graph with the first function -->
+      <div style="position: relative; width: 50%; max-width: 400px;">
+        <canvas id="canvas-left" style="width: 100%; height: auto;"></canvas>
+      </div>
+      
+      <!-- Right: The Graph with the second function -->
+      <div style="position: relative; width: 50%; max-width: 400px;">
+        <canvas id="canvas-right" style="width: 100%; height: auto;"></canvas>
+      </div>
+      
+    </div>
+
+    <div style="width: 85%; max-width: 1000px; margin: 20px auto; display: flex; flex-direction: column; align-items: center;">
+      <!-- 滑动条占 75% 宽度 -->
+      <input type="range" id="slider" min="0.01" max="9.99" step="0.01" value="0.2" style="width: 65%;">
+      <!-- 文本占 100% 宽度 -->
+      <span id="slider-value" style="width: 105%; text-align: center; word-wrap: break-word;"></span>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  const canvasLeft = document.getElementById('canvas-left');
+  const ctxLeft = canvasLeft.getContext('2d');
+  const canvasRight = document.getElementById('canvas-right');
+  const ctxRight = canvasRight.getContext('2d');
+  const slider = document.getElementById('slider');
+  const sliderValue = document.getElementById('slider-value');
+
+  function setCanvasResolution(canvas, ctx) {
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const targetDpi = 4 //Math.max(4, Math.min(devicePixelRatio * 3, 4)); // ✅ 增强DPI，但限制最大4倍
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    
+    // ✅ 增强DPI但不影响尺寸
+    canvas.width = width * targetDpi;
+    canvas.height = height * targetDpi;
+    
+    // ✅ 自动缩小对象尺寸，保证视觉大小不变
+    ctx.scale(targetDpi, targetDpi);
+    
+    // ✅ 如果需要防止绘图模糊，可以加一层平滑
+    ctx.imageSmoothingEnabled = true;
+  }
+  
+  
+
+  function drawGraphLeft(a) {
+    const width = canvasLeft.clientWidth;
+    const height = canvasLeft.clientHeight;
+    ctxLeft.clearRect(0, 0, canvasLeft.width, canvasLeft.height);
+
+    // ✅ 关键：确保不会错误缩放
+    ctxLeft.setTransform(1, 0, 0, 1, 0, 0);
+
+    // ✅ 平移到原点
+    ctxLeft.translate(2*width, 4*height - height/8);
+    ctxLeft.scale(200, -200);
+
+    // ✅ 画坐标轴
+    ctxLeft.beginPath();
+    ctxLeft.moveTo(-width / 2, 0);
+    ctxLeft.lineTo(width / 2, 0);
+    ctxLeft.moveTo(0, -height / 2);
+    ctxLeft.lineTo(0, height / 2);
+    ctxLeft.strokeStyle = '#ddd';
+    ctxLeft.lineWidth = 0.015;
+    ctxLeft.stroke();
+
+    // ✅ 画函数
+    function y(x, a) {
+      const term1 = Math.exp(-a * Math.abs(x - 1));
+      const term2 = Math.exp(-a * Math.abs(x + 1));
+      const h = (term1 + term2) / (1 + Math.exp(-2 * a * 1));
+      return h;
+    }
+
+    ctxLeft.beginPath();
+    for (let x = -width / 2; x <= width / 2; x += 0.01) {
+      ctxLeft.lineTo(x, y(x, a));
+    }
+    ctxLeft.strokeStyle = 'rgb(199, 114, 94)';
+    ctxLeft.lineWidth = 0.03;
+    ctxLeft.stroke();
+
+    // Draw the red dots at x = -2 and x = 2
+    ctxLeft.beginPath();
+    ctxLeft.arc(-1, 1, 0.05, 0, 2 * Math.PI); // Red dot at (-2, 0)
+    ctxLeft.arc(1, 1, 0.05, 0, 2 * Math.PI);  // Red dot at (2, 0)
+    ctxLeft.fillStyle = 'red';
+    ctxLeft.fill();
+
+    // ✅ 重置 transform 防止错位
+    ctxLeft.setTransform(1, 0, 0, 1, 0, 0);
+
+    // Draw the legend in the top-right corner
+    const legendWidth = 4*width * 0.3;  // Legend width as a fraction of the canvas width
+    const legendHeight = 4*0.09 * height;  // Legend height as a fraction of the canvas height
+    const legendX = 4*width - legendWidth - 30;  // Position the legend near the top-right corner
+    const legendY = 20;
+
+    // Draw "Recovered" label for soft blue line
+    ctxLeft.fillStyle = 'rgb(199, 114, 94)';
+    ctxLeft.font = `${legendHeight}px Arial`;
+    ctxLeft.fillText('Heat Simulation', legendX, legendY + legendHeight / 2);
+
+  }
+
+  function drawGraphRight(a) {
+    const width = canvasRight.clientWidth;
+    const height = canvasRight.clientHeight;
+    ctxRight.clearRect(0, 0, canvasRight.width, canvasRight.height);
+
+    // ✅ 关键：确保不会错误缩放
+    ctxRight.setTransform(1, 0, 0, 1, 0, 0);
+
+    ctxRight.translate(2*width, 4*height - height/8);
+    ctxRight.scale(200, -200);
+
+    // ✅ 画坐标轴
+    ctxRight.beginPath();
+    ctxRight.moveTo(-width / 2, 0);
+    ctxRight.lineTo(width / 2, 0);
+    ctxRight.moveTo(0, -height / 2);
+    ctxRight.lineTo(0, height / 2);
+    ctxRight.strokeStyle = '#ddd';
+    ctxRight.lineWidth = 0.015;
+    ctxRight.stroke();
+
+    // Draw the gray dashed line for min(|x-2|, |x+2|)
+    const prevStrokeStyle = ctxRight.strokeStyle;  // Save the current strokeStyle
+    const prevLineWidth = ctxRight.lineWidth;      // Save the current lineWidth
+
+    ctxRight.setLineDash([0.1, 0.1]);  // Set dashed line pattern
+    ctxRight.beginPath();
+    for (let x = -width / 2; x <= width / 2; x+=0.01) {
+        const y = Math.min(Math.abs(x - 1), Math.abs(x + 1));
+        ctxRight.lineTo(x, y);
+    }
+    ctxRight.strokeStyle = 'gray';  // Set color to gray for dashed line
+    ctxRight.lineWidth = 0.02;  // Optional: set line width for dashed line
+    ctxRight.stroke();
+
+    // Restore the previous strokeStyle and lineWidth
+    ctxRight.setLineDash([]);  // Reset to solid line
+    ctxRight.strokeStyle = prevStrokeStyle;  // Restore the previous strokeStyle
+    ctxRight.lineWidth = prevLineWidth;  // Restore the previous lineWidth
+
+    // ✅ 画函数
+    function y(x, a) {
+      const term1 = Math.exp(-a * Math.abs(x - 1));
+      const term2 = Math.exp(-a * Math.abs(x + 1));
+      const h = (term1 + term2) / (1 + Math.exp(-2 * a * 1));
+      return -1/a * Math.log(h);
+    }
+
+    ctxRight.beginPath();
+    for (let x = -width / 2; x <= width / 2; x += 0.01) {
+      ctxRight.lineTo(x, y(x, a));
+    }
+    ctxRight.strokeStyle = 'rgb(130, 130, 190)';
+    ctxRight.lineWidth = 0.03;
+    ctxRight.stroke();
+
+    // Draw the red dots at x = -2 and x = 2
+    ctxRight.beginPath();
+    ctxRight.arc(-1, 0, 0.05, 0, 2 * Math.PI); // Red dot at (-2, 0)
+    ctxRight.arc(1, 0, 0.05, 0, 2 * Math.PI);  // Red dot at (2, 0)
+    ctxRight.fillStyle = 'red';
+    ctxRight.fill();
+
+    // ✅ 重置 transform 防止错位
+    ctxRight.setTransform(1, 0, 0, 1, 0, 0);
+
+    // Draw the legend in the top-right corner
+    const legendWidth = 4*width * 0.3;  // Legend width as a fraction of the canvas width
+    const legendHeight = 4*0.09 * height;  // Legend height as a fraction of the canvas height
+    const legendX = 4*width - legendWidth - 30;  // Position the legend near the top-right corner
+    const legendY = 20;
+
+    // Draw "Recovered" label for soft blue line
+    ctxRight.fillStyle = 'rgb(130, 130, 190)';
+    ctxRight.font = `${legendHeight}px Arial`;
+    ctxRight.fillText('Reconstructed', legendX, legendY + legendHeight / 2);
+
+    ctxRight.fillStyle = 'gray';
+    ctxRight.fillText('Ground Truth', legendX, legendY + legendHeight * 1 + legendHeight / 2);
+  }
+
+  // ✅ 更新两个canvas
+  function updateGraphs() {
+    const a = parseFloat(slider.value);
+    // 将公式和文本结合
+    sliderValue.innerHTML = `
+    <div style="line-height: 1.2;">
+      \\( \\lambda = ${a.toFixed(2)} \\) models spatial absorption from heat sources at the boundaries (red points) for the screened Poisson equation
+      \\( (\\nabla^2 - \\lambda^2) h = 0 \\), \\( h(\\text{boundary}) = 1 \\) which represents heat transfer (left).
+      <br>
+      \\( \\hat{d}_{\\lambda}(x) = -\\frac{1}{\\lambda} \\ln(h_{\\lambda}(x)) \\) converges to the true distance when \\( \\lambda \\to \\infty \\) (right).
+    </div>`;
+
+    drawGraphLeft(a);
+    drawGraphRight(a);
+    MathJax.typeset();
+  }
+
+  // ✅ 监听各种事件防止消失
+  slider.addEventListener('input', updateGraphs);
+  window.addEventListener('resize', () => {
+  setCanvasResolution(canvasLeft, ctxLeft);
+  setCanvasResolution(canvasRight, ctxRight);
+  updateGraphs();
+  });
+
+  // ✅ 防止移动端拖动页面导致消失
+  window.addEventListener('scroll', updateGraphs);
+  window.addEventListener('touchmove', updateGraphs);
+
+  // ✅ 首次加载
+  setCanvasResolution(canvasLeft, ctxLeft);
+  setCanvasResolution(canvasRight, ctxRight);
+  slider.value = 0.2;
+  updateGraphs();
+</script>
+
+<!-- ✅ 引入MathJax渲染公式 -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+          We propose a method, <span class="dnerf"><strong>HotSpot</strong></span>, for optimizing neural signed distance functions by using the solution of a screened Poisson equation, which provides an asymptotically sufficient condition to ensure the output converges to a true distance function.
+          </p>
+          <p>
+          In contrast, existing losses, such as the eikonal loss, act as necessary but insufficient constraints and cannot guarantee that the recovered implicit function represents a true distance function, even if the output minimizes these losses almost everywhere.
+          Furthermore, the eikonal loss suffers from stability issues in optimization.
+          Finally, in conventional optimizations, area loss is indispensable but distorts the output.
+          </p>
+          <p>
+          We address these challenges by designing a loss function that, when minimized, converges to the true distance function, ensures stability, and naturally penalizes large surface area.
+          We present theoretical analysis and experiments on both challenging 2D and 3D datasets and show that our method provides better surface reconstruction and more accurate distance approximation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paper video. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3">Visual Effects</h2>
+          <p>
+            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
+            would be impossible without nerfies since it would require going through a wall.
+          </p>
+          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/dollyzoom-stacked.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <div class="column">
+        <h2 class="title is-3">Matting</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              As a byproduct of our method, we can also solve the matting problem by ignoring
+              samples that fall outside of a bounding box during rendering.
+            </p>
+            <video id="matting-video" controls playsinline height="100%">
+              <source src="./static/videos/matting.mp4"
+                      type="video/mp4">
+            </video>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--/ Matting. -->
+
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Animation</h2>
+
+        <!-- Interpolating. -->
+        <h3 class="title is-4">Interpolating states</h3>
+        <div class="content has-text-justified">
+          <p>
+            We can also animate the scene by interpolating the deformation latent codes of two input
+            frames. Use the slider here to linearly interpolate between the left frame and the right
+            frame.
+          </p>
+        </div>
+        <div class="columns is-vcentered interpolation-panel">
+          <div class="column is-3 has-text-centered">
+            <img src="./static/images/interpolate_start.jpg"
+                 class="interpolation-image"
+                 alt="Interpolate start reference image."/>
+            <p>Start Frame</p>
+          </div>
+          <div class="column interpolation-video-column">
+            <div id="interpolation-image-wrapper">
+              Loading...
+            </div>
+            <input class="slider is-fullwidth is-large is-info"
+                   id="interpolation-slider"
+                   step="1" min="0" max="100" value="0" type="range">
+          </div>
+          <div class="column is-3 has-text-centered">
+            <img src="./static/images/interpolate_end.jpg"
+                 class="interpolation-image"
+                 alt="Interpolation end reference image."/>
+            <p class="is-bold">End Frame</p>
+          </div>
+        </div>
+        <br/>
+        <!--/ Interpolating. -->
+
+        <!-- Re-rendering. -->
+        <h3 class="title is-4">Re-rendering the input video</h3>
+        <div class="content has-text-justified">
+          <p>
+            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
+            viewpoint such as a stabilized camera by playing back the training deformations.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video id="replay-video"
+                 controls
+                 muted
+                 preload
+                 playsinline
+                 width="75%">
+            <source src="./static/videos/replay.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <!--/ Re-rendering. -->
+
+      </div>
+    </div>
+    <!--/ Animation. -->
+
+
+    <!-- Concurrent Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            There's a lot of excellent work that was introduced around the same time as ours.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+          </p>
+          <p>
+            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
+            both use deformation fields to model non-rigid scenes.
+          </p>
+          <p>
+            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+          </p>
+          <p>
+            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{park2021nerfies,
+  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
+  title     = {Nerfies: Deformable Neural Radiance Fields},
+  journal   = {ICCV},
+  year      = {2021},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
