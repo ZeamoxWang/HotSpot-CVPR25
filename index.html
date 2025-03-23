@@ -33,12 +33,14 @@
         href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
   <link rel="icon" href="./static/images/hotspot.svg">
+  <link rel="stylesheet" href="./static/css/compare-images.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+  <script src="./static/js/compare-images.js"></script>
 </head>
 <body>
 
@@ -375,10 +377,19 @@
 </script>
 
 <!-- ✅ 引入MathJax渲染公式 -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+  window.MathJax = {
+    loader: { load: ['[tex]/color'] },
+    tex: {
+      packages: { '[+]': ['color'] }
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
+</script> -->
 
 <section class="section">
   <div class="container is-max-desktop">
@@ -406,11 +417,25 @@
     <!-- Paper video. -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <h2 class="title is-3">Method</h2>
+        <div style="text-align: center;">
+          <span>
+            \( L = w_b L_{\text{boundary}} + w_e L_{\text{eikonal}} +
+            {\color[rgb]{0.78, 0.45, 0.37} \boldsymbol{w_h L_{\text{heat}}}} \)
+          </span>
+          <span style="color: rgb(199, 114, 94); font-weight: bold; margin-left: 0.4em;">← new</span>
         </div>
+        <div style="text-align: center;">
+          \[
+            L_{\text{heat}} \;=\; \frac{1}{2}
+            \int_{\Omega} \;
+               e^{-2 \lambda \,\lvert u(x) \rvert}
+               \Bigl(\,\| \nabla u(x)\|^{2} + 1\Bigr)\;
+            \mathrm{d}x.
+          \]
+        </div>
+        <p>\( L \) represents the total loss function for optimizing neural signed distance function, <br>
+           and we introduce a new heat loss term \( L_{\text{heat}} \).</p>
       </div>
     </div>
     <!--/ Paper video. -->
@@ -421,136 +446,84 @@
 <section class="section">
   <div class="container is-max-desktop">
 
+    <h2 class="title is-3">2D Results</h2>
     <div class="columns is-centered">
-
-      <!-- Visual Effects. -->
+      <!-- 2D Result 1 -->
       <div class="column">
         <div class="content">
-          <h2 class="title is-3">Visual Effects</h2>
-          <p>
-            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-            would be impossible without nerfies since it would require going through a wall.
-          </p>
-          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/dollyzoom-stacked.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-      <!--/ Visual Effects. -->
-
-      <!-- Matting. -->
-      <div class="column">
-        <h2 class="title is-3">Matting</h2>
-        <div class="columns is-centered">
-          <div class="column content">
-            <p>
-              As a byproduct of our method, we can also solve the matting problem by ignoring
-              samples that fall outside of a bounding box during rendering.
-            </p>
-            <video id="matting-video" controls playsinline height="100%">
-              <source src="./static/videos/matting.mp4"
-                      type="video/mp4">
-            </video>
-          </div>
-
-        </div>
-      </div>
-    </div>
-    <!--/ Matting. -->
-
-    <!-- Animation. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Animation</h2>
-
-        <!-- Interpolating. -->
-        <h3 class="title is-4">Interpolating states</h3>
-        <div class="content has-text-justified">
-          <p>
-            We can also animate the scene by interpolating the deformation latent codes of two input
-            frames. Use the slider here to linearly interpolate between the left frame and the right
-            frame.
-          </p>
-        </div>
-        <div class="columns is-vcentered interpolation-panel">
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_start.jpg"
-                 class="interpolation-image"
-                 alt="Interpolate start reference image."/>
-            <p>Start Frame</p>
-          </div>
-          <div class="column interpolation-video-column">
-            <div id="interpolation-image-wrapper">
-              Loading...
+          <div class="compare-container">
+            <div class="label label-left">DiGS</div>
+            <div class="label label-right">Ours</div>
+            <div class="image image-left">
+              <img src="C:\Users\tayos\HotSpot-CVPR25\static\raw\2dfragments\digs_ori.png" alt="Rendering">
             </div>
-            <input class="slider is-fullwidth is-large is-info"
-                   id="interpolation-slider"
-                   step="1" min="0" max="100" value="0" type="range">
-          </div>
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_end.jpg"
-                 class="interpolation-image"
-                 alt="Interpolation end reference image."/>
-            <p class="is-bold">End Frame</p>
+            <div class="image image-right">
+              <img src="C:\Users\tayos\HotSpot-CVPR25\static\raw\2dfragments\hotspot.png" alt="Mesh">
+            </div>
+            <div class="ci-slider"></div>
           </div>
         </div>
-        <br/>
-        <!--/ Interpolating. -->
-
-        <!-- Re-rendering. -->
-        <h3 class="title is-4">Re-rendering the input video</h3>
-        <div class="content has-text-justified">
-          <p>
-            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
-            viewpoint such as a stabilized camera by playing back the training deformations.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <video id="replay-video"
-                 controls
-                 muted
-                 preload
-                 playsinline
-                 width="75%">
-            <source src="./static/videos/replay.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <!--/ Re-rendering. -->
-
       </div>
+      <!--/ 2D Result 1 -->
+
+      <!-- 2D Result 2 -->
+      <div class="column">
+        <div class="content">
+          <div class="compare-container">
+            <div class="label label-left">StEik</div>
+            <div class="label label-right">Ours</div>
+            <div class="image image-left">
+              <img src="static\raw\shapenet2d\ShapeNet-cross-section\StEik\rifle-cc353b464c22be528ae80165ba928e0c.png" alt="Rendering">
+            </div>
+            <div class="image image-right">
+              <img src="static\raw\shapenet2d\ShapeNet-cross-section\HotSpot\rifle-cc353b464c22be528ae80165ba928e0c.png" alt="Mesh">
+            </div>
+            <div class="ci-slider"></div>
+          </div>
+        </div>
+      </div>
+      <!--/ 2D Result 2  -->
     </div>
-    <!--/ Animation. -->
 
 
-    <!-- Concurrent Work. -->
+    <h2 class="title is-3">3D Results</h2>
     <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Related Links</h2>
-
-        <div class="content has-text-justified">
-          <p>
-            There's a lot of excellent work that was introduced around the same time as ours.
-          </p>
-          <p>
-            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
-          </p>
-          <p>
-            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
-            both use deformation fields to model non-rigid scenes.
-          </p>
-          <p>
-            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
-          </p>
-          <p>
-            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
-          </p>
+      <!-- 3D Result 1 -->
+      <div class="column">
+        <div class="content">
+          <div class="compare-container">
+            <div class="label label-left">DiGS</div>
+            <div class="label label-right">Ours</div>
+            <div class="image image-left">
+              <img src="static\raw\ShapeNet-render\DiGS-car-cc39c510115f0dadf774728aa9ef18b6.png" alt="Rendering">
+            </div>
+            <div class="image image-right">
+              <img src="static\raw\ShapeNet-render\HotSpot-car-cc39c510115f0dadf774728aa9ef18b6.png" alt="Mesh">
+            </div>
+            <div class="ci-slider"></div>
+          </div>
         </div>
       </div>
-    </div>
-    <!--/ Concurrent Work. -->
+      <!--/ 2D Result 1 -->
 
+      <!-- 3D Result 2 -->
+      <div class="column">
+        <div class="content">
+          <div class="compare-container">
+            <div class="label label-left">StEik</div>
+            <div class="label label-right">Ours</div>
+            <div class="image image-left">
+              <img src="static\raw\nieimage\steik_triple_100k.png" alt="Rendering">
+            </div>
+            <div class="image image-right">
+              <img src="static\raw\nieimage\hotspot_triple_10k.png" alt="Mesh">
+            </div>
+            <div class="ci-slider"></div>
+          </div>
+        </div>
+      </div>
+      <!--/ 2D Result 2  -->
+    </div>
   </div>
 </section>
 
@@ -558,12 +531,12 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
-}</code></pre>
+    <pre><code>@inproceedings{zimo2025hotspot,
+      title={HotSpot: Signed Distance Function Optimization with an Asymptotically Sufficient Condition},
+      author={Zimo Wang, Cheng Wang, Taiki Yoshino, Sirui Tao, Ziyang Fu and Tzu-Mao Li},
+      year={2025},
+      booktitle={CVPR},
+    }</code></pre>
   </div>
 </section>
 
@@ -571,29 +544,7 @@
 <footer class="footer">
   <div class="container">
     <div class="content has-text-centered">
-      <a class="icon-link"
-         href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            This means you are free to borrow the <a
-              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
+      <p>The website template was borrowed from <a href="https://nerfies.github.io/">Nerfies</a>.</p>
         </div>
       </div>
     </div>

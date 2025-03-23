@@ -1,0 +1,76 @@
+.compare-container {
+    position: relative;
+    width: 450px;
+    height: 450px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border-radius: 10px;
+  }
+  
+  .compare-container .image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .compare-container .image img {
+    width: 450px;
+    height: 450px;
+    /* object-fit: none; */
+    object-fit: contain;
+    object-position: center;
+
+    display: block;
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
+  }
+  
+  .compare-container .image-left {
+    /* width: 50%; */
+    position: absolute; 
+    overflow: hidden;
+    object-fit: none;
+    object-position: center;
+    z-index: 5;
+    clip-path: inset(0 50% 0 0);
+  }
+  
+  .compare-container .ci-slider {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 5px;
+    height: 100%;
+    background-color: #fff;
+    cursor: ew-resize;
+    z-index: 10;
+    transition: background-color 0.2s;
+  }
+  
+  .compare-container .ci-slider:hover {
+    background-color: #aaa;
+  }
+  
+  .compare-container .label {
+    position: absolute;
+    top: 10px;
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 4px;
+    z-index: 20;
+    user-select: none;
+  }
+  
+  .compare-container .label-left {
+    left: 10px;
+  }
+  
+  .compare-container .label-right {
+    right: 10px;
+  }
