@@ -342,6 +342,7 @@
 
   // ✅ 更新两个canvas
   function updateGraphs() {
+    console.log("updateGraphs is called!");
     const a = parseFloat(slider.value);
     // 将公式和文本结合
     sliderValue.innerHTML = `
@@ -354,11 +355,23 @@
 
     drawGraphLeft(a);
     drawGraphRight(a);
-    MathJax.typeset();
+
+    MathJax.typesetClear(); // ← clear the previous cache
+    MathJax.typesetPromise([sliderValue])
+  }
+
+  //Limit the number of updateGraphs call within a certain time frame.
+  let lastCall = 0;
+  function throttledUpdate() {
+    const now = performance.now();
+    if (now - lastCall > 100) {
+      updateGraphs();
+      lastCall = now;
+    }
   }
 
   // ✅ 监听各种事件防止消失
-  slider.addEventListener('input', updateGraphs);
+  slider.addEventListener('input', throttledUpdate);
   window.addEventListener('resize', () => {
   setCanvasResolution(canvasLeft, ctxLeft);
   setCanvasResolution(canvasRight, ctxRight);
@@ -366,8 +379,8 @@
   });
 
   // ✅ 防止移动端拖动页面导致消失
-  window.addEventListener('scroll', updateGraphs);
-  window.addEventListener('touchmove', updateGraphs);
+  window.addEventListener('scroll', throttledUpdate);
+  window.addEventListener('touchmove', throttledUpdate);
 
   // ✅ 首次加载
   setCanvasResolution(canvasLeft, ctxLeft);
